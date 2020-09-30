@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -37,12 +37,27 @@ namespace ROADToken
                 myProcess.StartInfo.UseShellExecute = false;
                 myProcess.StartInfo.RedirectStandardInput = true;
                 myProcess.StartInfo.RedirectStandardOutput = true;
-                // TODO: Support for sso_nonce
-                string stuff = "{" +
+                string stuff;
+                if (args.Length > 0)
+                {
+                    string nonce = args[0];
+                    Console.WriteLine($"Using nonce {nonce} supplied on command line");
+                    stuff = "{" +
                     "\"method\":\"GetCookies\"," +
-                    "\"uri\":\"https://login.microsoftonline.com/common/oauth2/authorize\"," +
+                    $"\"uri\":\"https://login.microsoftonline.com/common/oauth2/authorize?sso_nonce={nonce}\"," +
                     "\"sender\":\"https://login.microsoftonline.com\"" +
-                "}";
+                    "}";
+                }
+                else
+                {
+                    Console.WriteLine("No nonce supplied, refresh cookie will likely not work!");
+                    stuff = "{" +
+                        "\"method\":\"GetCookies\"," +
+                        $"\"uri\":\"https://login.microsoftonline.com/common/oauth2/authorize\"," +
+                        "\"sender\":\"https://login.microsoftonline.com\"" +
+                    "}";
+                }
+                
                 myProcess.Start();
 
                 StreamWriter myStreamWriter = myProcess.StandardInput;
